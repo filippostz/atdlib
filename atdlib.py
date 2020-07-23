@@ -4,6 +4,9 @@ Exposes a part of McAfee ATD REST API: open session, upload a file, get job/task
 Proxy along with optional username/password can be specified through HTTP_PROXY/HTTPS_PROXY environment variable inherently to requests library.
 Log level and format is controlled via logging module, atdlib logger.
 '''
+'''
+ATDLib v.1.7. adapted by Filippo Sitzia for Python3 compatibility
+'''
 
 import json
 import requests
@@ -161,7 +164,7 @@ class atdsession:
 		if not isinstance(pswd, str): raise TypeError(__name__ + u': pswd parameter must be a string')
 
 		url = 'http' + ('s' if self._usessl else '') + '://' + host + '/php/session.php'
-		auth = base64.b64encode(user + ':' + pswd)
+		auth = base64.b64encode((user + ':' + pswd).encode("utf-8"))
 
 		headers = self._headers.copy()
 		headers.update({'VE-SDK-API': auth, 'Content-Type' : 'application/json'})
@@ -176,7 +179,7 @@ class atdsession:
 		self._atdver = self._parse(resp.text, lambda x: x['results']['matdVersion'])
 
 		self._atdhost = host
-		self._auth = base64.b64encode(self._sessid + ':' + self._userid)
+		self._auth = base64.b64encode((self._sessid + ':' + self._userid).encode("utf-8"))
 		self._valid = True
 
 		return True
@@ -234,7 +237,7 @@ class atdsession:
 			atdlog.error(u'Session is not valid. Please run open() method first.')
 			raise ATDStateError(__name__ + u': Session is not valid. Please run open() method first.')
 
-		if not isinstance(filename, basestring): raise TypeError(__name__ + u': filename parameter must be an ascii or unicode string')
+		if not isinstance(filename, str): raise TypeError(__name__ + u': filename parameter must be an ascii or unicode string')
 		if not isinstance(srcip, str): raise TypeError(__name__ + u': srcip parameter must be a string')
 		if not isinstance(reanalyze, bool): raise TypeError(__name__ + u': reanalyze parameter must be a bool')
 
@@ -256,7 +259,10 @@ class atdsession:
 
 		prep = req.prepare()
 
-		li = str.find(prep.body, "Content-Disposition: form-data; name=\"amas_filename\"; filename*=utf-8''")
+
+
+
+		li = str.find(str(prep.body, 'ISO-8859-1'), "Content-Disposition: form-data; name=\"amas_filename\"; filename*=utf-8''")
 		if li >= 0:
 			ri = str.find(prep.body, "\r\n", li)
 			if ri >= 0:
@@ -338,7 +344,7 @@ class atdsession:
 			log = self._parse(resp.text, lambda x: x['results'])
 			# Sort previous submissions based on lastChange time
 			try:
-			
+
 				rr = sorted(log, key=lambda x: x['lastChange'], reverse=True)
 
 				# Modify Severity key based on ATD version
@@ -346,10 +352,10 @@ class atdsession:
 					sevKey = 'confidence'
 				else :
 					sevKey = 'severity'
-				
+
 				# Return latest result
 				return {'status': int(rr[0]['status']), 'jobid': int(rr[0]['jobid']), 'severity': int(rr[0][sevKey])}
-				
+
 			except (KeyError, IndexError, ValueError) as e:
 				atdlog.error(u'ATD box {0} returned unexpected data.'.format(self._atdhost))
 				raise ATDError(__name__ + u': ATD box {0} returned unexpected data.'.format(self._atdhost))
@@ -394,7 +400,7 @@ class atdsession:
 		except(ValueError):
 			atdlog.error(u'ATD box {0} returned unexpected data.'.format(self._atdhost))
 			raise ATDError(__name__ + u': ATD box {0} returned unexpected data.'.format(self._atdhost))
-			
+
 		return typedRes
 
 
@@ -461,7 +467,7 @@ class atdsession:
 		except(ValueError):
 			atdlog.error(u'ATD box {0} returned unexpected data.'.format(self._atdhost))
 			raise ATDError(__name__ + u': ATD box {0} returned unexpected data.'.format(self._atdhost))
-			
+
 		return typedRes
 
 
@@ -508,7 +514,7 @@ class atdsession:
 		except(ValueError):
 			atdlog.error(u'ATD box {0} returned unexpected data.'.format(self._atdhost))
 			raise ATDError(__name__ + u': ATD box {0} returned unexpected data.'.format(self._atdhost))
-			
+
 		return typedRes
 
 
@@ -562,7 +568,7 @@ class atdsession:
 		if not re.search(r'([a-fA-F\d]{32})', md5h):
 			atdlog.error(u'"{0}" is not a valid MD5 hash.'.format(md5h))
 			raise ValueError(__name__ + u': md5h parameter must be a valid hash')
-			
+
 		if type not in ('html', 'txt', 'xml', 'zip', 'json', 'ioc', 'stix', 'pdf', 'sample'):
 			raise ValueError(__name__ + u': Report type requested is not supported. Supported types are: html, txt, xml, zip, json, ioc, stix, pdf, sample.')
 
