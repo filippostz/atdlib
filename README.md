@@ -9,14 +9,15 @@ It allows one to:
  - check job and task status for previously submitted samples,
  - get the analysis report for a given task in a given format.
 
-Usage example is available in [EXAMPLE_PY](EXAMPLE_PY) file.
-
 Proxy along with optional username/password can be specified through HTTP_PROXY/HTTPS_PROXY environment variable inherently to [requests library](http://docs.python-requests.org/).
 
 Log level and format is controlled via atdlib logger, [logging module](https://docs.python.org/2/library/logging.html).
 
-The module was written in Python 2.7 according to the [McAfee ATD API reference guide](https://kc.mcafee.com/resources/sites/MCAFEE/content/live/PRODUCT_DOCUMENTATION/26000/PD26048/en_US/ATD_3_4_8_API_Reference_Guide_revA_en_us.pdf).
-Tested with ATD v.3.4.8.x (API v.1.5.0).
+~~The module was written in Python 2.7 according to the [McAfee ATD API reference guide](https://kc.mcafee.com/resources/sites/MCAFEE/content/live/PRODUCT_DOCUMENTATION/26000/PD26048/en_US/ATD_3_4_8_API_Reference_Guide_revA_en_us.pdf).
+Tested with ATD v.3.4.8.x (API v.1.5.0).~~
+
+UPDATE: the module has been adapted to work with Python 3.8.3
+Tested with ATD v.4.8.0.17
 
 ##### utests.py
 Unit test set for the atdlib module. Requires proper initialization of test data (comments inside).
