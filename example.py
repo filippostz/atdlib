@@ -1,4 +1,8 @@
 import atdlib
+import time
+import json
+
+TIMER = 1
 
 atd = atdlib.atdsession()
 
@@ -6,13 +10,30 @@ atd = atdlib.atdsession()
 atd.open('192.168.224.100', 'user', 'password')
 
 # upload a file for analysis and get jobId
-atd.fileup('sample.exe')
+jobId = atd.fileup('sample.exe')
 
-# jobId is xxxx
+TaskId = atd.jobtasks(jobId)[0]
 
 # Get a list of job tasks
-#atd.jobtasks(xxxx)
-# job initiated one task with id 14326
+print('File uploaded with job task id:%d' % (TaskId))
 
 # getting task status
-#atd.taskstatus(yyy)
+status=0
+while status != 1 :
+    status = atd.taskstatus(TaskId)
+    time.sleep(TIMER)
+
+print('done!')
+
+# getting report
+report = atd.taskreport(TaskId, 'json')
+
+# Decode UTF-8 bytes to Unicode, and convert single quotes to double quotes
+report_json = report.decode('utf8').replace("'", '"')
+
+data = json.loads(report_json)
+
+print(data['Summary']['Verdict']['Description'])
+
+# close Session
+atd.close()
