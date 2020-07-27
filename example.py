@@ -2,7 +2,7 @@ import atdlib
 import time
 import json
 
-TIMER = 1
+TIMER = 10
 
 atd = atdlib.atdsession()
 
@@ -28,12 +28,11 @@ print('done!')
 # getting report
 report = atd.taskreport(TaskId, 'json')
 
-# Decode UTF-8 bytes to Unicode, and convert single quotes to double quotes
-report_json = report.decode('utf8').replace("'", '"')
+data = json.loads(report)
 
-data = json.loads(report_json)
-
-print(data['Summary']['Verdict']['Description'])
+name = data['Summary']['Subject']['Name']
+verdict = data['Summary']['Verdict']['Description']
+print("File: {0} result is {1}".format(name,verdict))
 
 # close Session
 atd.close()
